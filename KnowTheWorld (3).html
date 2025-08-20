@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>🌍 Know the World - Country Explorer</title>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #c1dfc4 0%, #deecdd 100%); min-height:100vh; color: #173; margin:0;}
+    h1 {text-align:center; color:#086972; letter-spacing:2px; font-size:2.4rem; margin:26px 0 14px 0;}
+    .container {max-width:1200px;margin:auto;background:rgba(255,255,255,0.13);border-radius:22px;padding:28px;box-shadow:0 10px 36px rgba(80,160,120,0.16);}
+    .search-wrapper {text-align:center;margin-bottom:23px;}
+    .search-input {width:330px;max-width:90vw;padding:12px 17px;font-size:1rem;border-radius:25px;border:none;outline:none;box-shadow:0 2px 8px rgba(0,0,0,0.09);}
+    .country-list {display:flex;flex-direction:column;gap:13px;align-items:center;margin:0 auto 30px auto;max-width:530px;}
+    .country-item {background:linear-gradient(112deg,#ffd966 8%,#21b4c2 100%);color:#165273;border-radius:13px;padding:13px 22px;display:flex;align-items:center;gap:15px;font-size:1.13rem;font-weight:600;cursor:pointer;transition:background 0.3s,transform 0.14s;width:100%;text-align:left;box-shadow:1px 1px 8px rgba(0,0,0,0.11);}
+    .country-item img {box-shadow:1px 2px 8px rgba(0,0,0,0.04);border-radius:5px;width:33px;height:24px;background:#fff;object-fit:cover;border:1px solid #fff3;}
+    .country-item:hover {background:linear-gradient(112deg,#21b4c2 8%,#ffd966 100%);color:#126;transform:scale(1.045);}
+    .backbtn {display:inline-block;background:#ffd966;color:#21b4c2;border-radius:13px;padding:11px 22px;border:none;font-weight:700;font-size:1.04rem;margin-bottom:19px;cursor:pointer;box-shadow:0 4px 13px rgba(0,0,0,0.18);transition:background 0.3s,color 0.3s;}
+    .backbtn:hover {background:#84fab0;color:#126;}
+    h2 {text-align:center;margin-bottom:13px;font-size:2rem;color:#21b4c2;}
+    .capital-box {display:flex;align-items:center;justify-content:center;gap:13px;font-size:1.03rem;color:#03587a;font-weight:500;margin-bottom:10px;}
+    .capital-label {font-weight:600;}
+    .topic-list {display:flex;flex-direction:column;align-items:center;max-width:700px;margin:18px auto 36px auto;gap:18px;}
+    .topic-item {background:rgba(255,255,255,0.28);padding:19px 22px;border-radius:14px;box-shadow:0 0 9px rgba(0,0,0,0.11);width:98%;max-width:590px;line-height:1.65;}
+    .topic-item h3 {margin:0 0 7px 0;font-size:1.25rem;color:#118ab2;text-align:left;}
+    .footer {margin-top:35px;text-align:center;font-size:1.05rem;color:#34966a;letter-spacing:1px;font-weight:600;padding-bottom:12px;}
+    @media (max-width:650px) {.container{padding:10px 5px;}.country-item{font-size:.98rem;padding:10px 6px;}.country-item img{width:24px;height:17px;}.topic-list{max-width:100%;}.search-input{width:80vw;}.country-list{max-width:97vw;}}
+  </style>
+</head>
+<body>
+  <h1>🌍 Know the World</h1>
+  <div class="container">
+    <div id="homeView">
+      <div class="search-wrapper">
+        <input type="text" id="searchInput" class="search-input" placeholder="Search country name..." autocomplete="off" oninput="filterCountries()" />
+      </div>
+      <div id="countryList" class="country-list"></div>
+    </div>
+    <div id="countryDetailsView" style="display:none;">
+      <button class="backbtn" onclick="showHome()">← Back to List</button>
+      <div id="capitalBox" class="capital-box"></div>
+      <h2 id="countryTitle">Country</h2>
+      <div id="topicList" class="topic-list"></div>
+    </div>
+  </div>
+  <div class="footer">Copowered by Gaurav Kumar</div>
+<script>
+const countryCodes = {
+  "Afghanistan":"af","Albania":"al","Algeria":"dz","Andorra":"ad","Angola":"ao", "Antigua and Barbuda":"ag", 
+  "Argentina":"ar","Armenia":"am","Australia":"au","Austria":"at","Azerbaijan":"az", "Bahamas":"bs","Bahrain":"bh",
+  "Bangladesh":"bd","Barbados":"bb","Belarus":"by","Belgium":"be","Belize":"bz","Benin":"bj","Bhutan":"bt",
+  "Bolivia":"bo","Bosnia and Herzegovina":"ba","Botswana":"bw","Brazil":"br","Brunei":"bn","Bulgaria":"bg",
+  "Burkina Faso":"bf","Burundi":"bi","Cabo Verde":"cv","Cambodia":"kh","Cameroon":"cm","Canada":"ca",
+  "Central African Republic":"cf","Chad":"td","Chile":"cl","China":"cn","Colombia":"co","Comoros":"km",
+  "Congo (Congo-Brazzaville)":"cg","Costa Rica":"cr","Côte d'Ivoire":"ci","Croatia":"hr","Cuba":"cu","Cyprus":"cy",
+  "Czechia (Czech Republic)":"cz","Democratic Republic of the Congo":"cd","Denmark":"dk","Djibouti":"dj","Dominica":"dm","Dominican Republic":"do","Ecuador":"ec","Egypt":"eg","El Salvador":"sv","Equatorial Guinea":"gq","Eritrea":"er","Estonia":"ee","Eswatini (formerly Swaziland)":"sz","Ethiopia":"et","Fiji":"fj","Finland":"fi","France":"fr","Gabon":"ga","Gambia":"gm","Georgia":"ge","Germany":"de","Ghana":"gh","Greece":"gr","Grenada":"gd","Guatemala":"gt","Guinea":"gn","Guinea-Bissau":"gw","Guyana":"gy","Haiti":"ht","Holy See (Vatican City)":"va","Honduras":"hn","Hungary":"hu","Iceland":"is","India":"in","Indonesia":"id","Iran":"ir","Iraq":"iq","Ireland":"ie","Israel":"il","Italy":"it","Jamaica":"jm","Japan":"jp","Jordan":"jo","Kazakhstan":"kz","Kenya":"ke","Kiribati":"ki","Kuwait":"kw","Kyrgyzstan":"kg","Laos":"la","Latvia":"lv","Lebanon":"lb","Lesotho":"ls","Liberia":"lr","Libya":"ly","Liechtenstein":"li","Lithuania":"lt","Luxembourg":"lu","Madagascar":"mg","Malawi":"mw","Malaysia":"my","Maldives":"mv","Mali":"ml","Malta":"mt","Marshall Islands":"mh","Mauritania":"mr","Mauritius":"mu","Mexico":"mx","Micronesia (Federated States of)":"fm","Monaco":"mc","Mongolia":"mn","Montenegro":"me","Morocco":"ma","Mozambique":"mz","Myanmar":"mm","Namibia":"na","Nauru":"nr","Nepal":"np","Netherlands":"nl","New Zealand":"nz","Nicaragua":"ni","Niger":"ne","Nigeria":"ng","North Korea":"kp","North Macedonia":"mk","Norway":"no","Oman":"om","Pakistan":"pk","Palau":"pw","Palestine":"ps","Panama":"pa","Papua New Guinea":"pg","Paraguay":"py","Peru":"pe","Philippines":"ph","Poland":"pl","Portugal":"pt","Qatar":"qa","Republic of Korea (South Korea)":"kr","Republic of Moldova":"md","Romania":"ro","Russian Federation":"ru","Rwanda":"rw","Saint Kitts and Nevis":"kn","Saint Lucia":"lc","Saint Vincent and the Grenadines":"vc","Samoa":"ws","San Marino":"sm","Sao Tome and Principe":"st","Saudi Arabia":"sa","Senegal":"sn","Serbia":"rs","Seychelles":"sc","Sierra Leone":"sl","Singapore":"sg","Slovakia":"sk","Slovenia":"si","Solomon Islands":"sb","Somalia":"so","South Africa":"za","South Sudan":"ss","Spain":"es","Sri Lanka":"lk","Sudan":"sd","Suriname":"sr","Sweden":"se","Switzerland":"ch","Syrian Arab Republic":"sy","Tajikistan":"tj","Tanzania":"tz","Thailand":"th","Timor-Leste":"tl","Togo":"tg","Tonga":"to","Trinidad and Tobago":"tt","Tunisia":"tn","Turkey":"tr","Turkmenistan":"tm","Tuvalu":"tv","Uganda":"ug","Ukraine":"ua","United Arab Emirates":"ae","United Kingdom":"gb","United Republic of Tanzania":"tz","United States":"us","Uruguay":"uy","Uzbekistan":"uz","Vanuatu":"vu","Venezuela":"ve","Vietnam":"vn","Yemen":"ye","Zambia":"zm","Zimbabwe":"zw"
+};
+
+// Capitals - fill as desired for each country (first five filled as example)
+const countryCapitals = {
+  "Afghanistan":"Kabul", "Albania":"Tirana", "Algeria":"Algiers", "Andorra":"Andorra la Vella", "Angola":"Luanda",
+  "Argentina":"Buenos Aires","Armenia":"Yerevan","Australia":"Canberra","Austria":"Vienna","Azerbaijan":"Baku",
+  // Continue for all countries
+};
+
+// Example: Detailed first five countries
+const countriesData = {
+  "Afghanistan": {
+    "Agriculture": "Afghanistan's agriculture includes wheat, fruits, nuts, and livestock. Much of the land is arid, but farming remains vital for rural livelihoods. Irrigation challenges and modern methods are slowly improving local yields.",
+    "Culture & Society": "Afghan society is deeply rooted in tribal affiliations and Islamic customs. Poetry and hospitality have long defined social life. Political turbulence has shaped collective adaptability and resilience.",
+    "Economical Condition": "The economy is agriculture-based with significant informal activity, minerals, small industry, and limited trade. Instability, conflict, and sanctions hinder growth.",
+    "Government Type": "Currently led by the Taliban, Afghanistan faces international isolation and lacks an inclusive constitutional system. Political uncertainty persists.",
+    "Population": "Afghanistan has about 40 million people, with ethnic diversity: Pashtun, Tajik, Hazara, Uzbek, and others. Rural population dominates, but cities like Kabul are growing.",
+    "Weather Condition": "Mountainous landscape with cold winters, hot summers, and variable rainfall. Drought affects crops; flash floods can occur in valleys."
+  },
+  "Albania": {
+    "Agriculture": "Wheat, corn, sheep, and olives are key Albanian products. Farmers rely on both family plots and small cooperatives. Modernization is ongoing but traditional methods prevail.",
+    "Culture & Society": "Albania is known for ancient traditions, religious diversity, vibrant folklore, music, and hospitality.",
+    "Economical Condition": "Growing market economy with tourism, oil, services, and agriculture. Foreign investment is increasing.",
+    "Government Type": "Parliamentary republic with a multi-party system and constitutional government.",
+    "Population": "About 2.8 million, mostly ethnic Albanian. Urban migration is increasing.",
+    "Weather Condition": "Mediterranean climate, warm dry summers and mild wet winters, favoring coastal agriculture."
+  },
+  "Algeria": {
+    "Agriculture": "Algeria produces wheat, barley, olives, citrus, and dates. Large plots are state-run, but small farms are vital.",
+    "Culture & Society": "Berber and Arab heritage dominate, with strong music, crafts, and desert traditions.",
+    "Economical Condition": "Oil and gas exports drive the economy; agriculture is secondary but important.",
+    "Government Type": "Presidential republic, official Islam, state-driven development.",
+    "Population": "North African nation with about 45 million people, mostly urban and youthful.",
+    "Weather Condition": "Mediterranean coast, desert interior (Sahara), dry climate, hot summers."
+  },
+  "Andorra": {
+    "Agriculture": "Due to mountainous terrain, Andorra's agriculture is limited — sheep, tobacco, dairy.",
+    "Culture & Society": "A blend of Catalan heritage with French and Spanish influences; festivals and skiing popular.",
+    "Economical Condition": "Tourism (ski resorts), finance, and duty-free shopping are key sectors.",
+    "Government Type": "Parliamentary co-principality: joint heads of state (President of France, Bishop of Urgell).",
+    "Population": "Tiny population (about 80,000); expats and tourists make it cosmopolitan.",
+    "Weather Condition": "Cool, snowy winters, mild summers; high rainfall in mountains."
+  },
+  "Angola": {
+    "Agriculture": "Angola grows coffee, maize, cassava, cotton, and livestock; recovery after years of conflict.",
+    "Culture & Society": "Rich music, storytelling, and dance. Diverse ethnic groups, Portuguese language.",
+    "Economical Condition": "Oil-rich but seeking diversification; agriculture and mining are growing.",
+    "Government Type": "Presidential republic with strong executive.",
+    "Population": "Over 34 million, mostly urban, youthful population.",
+    "Weather Condition": "Tropical wet/dry climate, influenced by Atlantic Ocean currents."
+  }
+  // Add the rest using the same format!
+};
+
+const homeView = document.getElementById('homeView');
+const countryDetailsView = document.getElementById('countryDetailsView');
+const countryList = document.getElementById('countryList');
+const countryTitle = document.getElementById('countryTitle');
+const topicList = document.getElementById('topicList');
+const capitalBox = document.getElementById('capitalBox');
+const searchInput = document.getElementById('searchInput');
+
+const countries = Object.keys(countryCodes).sort();
+
+function renderCountryList(filter = '') {
+  countryList.innerHTML = '';
+  countries.forEach(name => {
+    if (name.toLowerCase().includes(filter.trim().toLowerCase())) {
+      const div = document.createElement('div');
+      const code = countryCodes[name];
+      const flagUrl = `https://flagcdn.com/32x24/${code}.png`;
+      div.classList.add('country-item');
+      div.onclick = () => openCountry(name);
+
+      // Flag image
+      const img = document.createElement('img');
+      img.src = flagUrl;
+      img.alt = name+" flag";
+      div.appendChild(img);
+
+      // Country name text
+      const span = document.createElement('span');
+      span.textContent = name;
+      div.appendChild(span);
+      countryList.appendChild(div);
+    }
+  });
+}
+
+function openCountry(name) {
+  homeView.style.display = 'none';
+  countryDetailsView.style.display = 'block';
+  const code = countryCodes[name];
+  countryTitle.innerHTML = `<img src="https://flagcdn.com/32x24/${code}.png" alt="${name} flag" style="margin-right:11px;vertical-align:middle;border-radius:6px;"> ${name}`;
+  // Show Capital
+  capitalBox.innerHTML = `<span class='capital-label'>Capital:</span> <span>${countryCapitals[name] ? countryCapitals[name] : 'Unknown'}</span>`;
+
+  topicList.innerHTML = '';
+  // Vertical alphabetical order for topics
+  const topics = ["Agriculture","Culture & Society","Economical Condition","Government Type","Population","Weather Condition"];
+  topics.forEach(topic => {
+    const topicDiv = document.createElement('div');
+    topicDiv.className = 'topic-item';
+    const h3 = document.createElement('h3');
+    h3.textContent = topic;
+    topicDiv.appendChild(h3);
+
+    // Use stored data or placeholder
+    let detail = countriesData[name] && countriesData[name][topic] ?
+                  countriesData[name][topic] :
+                  `Information about ${topic.toLowerCase()} in ${name} will appear here.`;
+    const p = document.createElement('p');
+    p.textContent = detail;
+    topicDiv.appendChild(p);
+    topicList.appendChild(topicDiv);
+  });
+}
+
+function showHome() {
+  homeView.style.display = 'block';
+  countryDetailsView.style.display = 'none';
+  renderCountryList(searchInput.value);
+}
+
+function filterCountries() {
+  renderCountryList(searchInput.value);
+}
+
+searchInput.addEventListener('input', filterCountries);
+
+renderCountryList();
+
+// Navigation for "Back"
+window.showHome = showHome;
+</script>
+</body>
+</html>
